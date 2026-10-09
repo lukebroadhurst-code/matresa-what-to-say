@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What to say</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=Instrument+Serif:ital@0;1&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <img class="logo" src="assets/Red_Matresa.svg" alt="Matresa" width="98" height="34">
+  <h1>What to <em>say</em></h1>
+</header>
+
+<main>
+
+  <!-- 1. Who -->
+  <section class="card" aria-labelledby="who-h">
+    <h2 id="who-h">Who are you calling?</h2>
+    <div class="fields">
+      <label class="fld grow">
+        <span>Company</span>
+        <input id="f-company" type="text" autocomplete="off" placeholder="Who you are calling">
+      </label>
+      <label class="fld">
+        <span>Their name</span>
+        <input id="f-their" type="text" autocomplete="off" placeholder="Mary">
+      </label>
+      <label class="fld">
+        <span>Your name</span>
+        <input id="f-you" type="text" autocomplete="off" placeholder="Sam">
+      </label>
+    </div>
+    <div class="persona-row">
+      <span class="small-label">Their role</span>
+      <div id="personas" class="chips" role="group" aria-label="Their role"></div>
+    </div>
+  </section>
+
+  <!-- 2. Say this -->
+  <section class="card say-card" aria-labelledby="say-h">
+    <div class="say-head">
+      <h2 id="say-h">Say this</h2>
+      <div id="steps" class="steps" role="group" aria-label="Steps of the call"></div>
+    </div>
+    <div id="say-body" class="say-body" aria-live="polite"></div>
+    <div class="nav">
+      <button type="button" class="btn ghost" data-a="prev">&larr; Back</button>
+      <button type="button" class="btn" data-a="next">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- 3. If they say -->
+  <section class="card" aria-labelledby="obj-h">
+    <div class="obj-head">
+      <h2 id="obj-h">If they say&hellip;</h2>
+      <input id="f-q" class="search" type="search" placeholder="Search, for example budget, EAP, price" aria-label="Search what they say">
+    </div>
+    <div id="obj-list" class="obj-list"></div>
+  </section>
+
+  <!-- 4. Other moments -->
+  <section class="card" aria-labelledby="mom-h">
+    <h2 id="mom-h">Other moments</h2>
+    <div class="chips" id="moments" role="group" aria-label="Other moments"></div>
+    <div id="moment-body" class="moment-body" hidden></div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p><strong>Not sure? Say:</strong> <span id="escape"></span></p>
+  <p><strong>Never say:</strong> <span id="never"></span></p>
+</footer>
+
+<script src="say.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
