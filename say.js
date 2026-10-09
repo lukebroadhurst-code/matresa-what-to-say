@@ -534,7 +534,7 @@ window.SAY = {
    "rank": 20,
    "behind": "Opt-out",
    "say": "\"Of course. I will take you off our list today. Thank you for your time.\"",
-   "then": "Log \"do not call\" the same day in HubSpot and CTPS or suppression list",
+   "then": "Log \"do not call\" the same day and add them to your suppression list",
    "sayParts": [
     {
      "t": "say",
