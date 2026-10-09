@@ -85,18 +85,45 @@
   }
 
   /* ---------- if they say ---------- */
-  function renderObjections() {
+  function byRank(a, b) { return a.rank - b.rank; }
+  function matches(o) {
     var q = state.q.trim().toLowerCase();
-    var list = S.objections.filter(function (o) {
-      return !q || (o.they + ' ' + o.say + ' ' + o.then).toLowerCase().indexOf(q) !== -1;
-    });
-    if (!list.length) { $('obj-list').innerHTML = '<p class="none">Nothing matches. Try one word.</p>'; return; }
-    $('obj-list').innerHTML = list.map(function (o) {
-      var open = state.openObj === o.n;
-      return '<button type="button" class="obj-b" data-a="obj" data-n="' + o.n + '" aria-expanded="' + open + '">' + esc(o.they) + '</button>' +
-        (open ? '<div class="obj-panel">' + label('Say') + '<p class="say">' + fill(o.say.replace(/^"|"$/g, '')) + '</p>' +
-          label('Then ask') + '<p class="alt">' + fill(o.then.replace(/^"|"$/g, '')) + '</p></div>' : '');
+    return !q || (o.short + ' ' + o.they + ' ' + o.say).toLowerCase().indexOf(q) !== -1;
+  }
+  function partsHtml(parts) {
+    return parts.map(function (p) {
+      if (p.t === 'say') return '<p class="say">' + fill(p.x) + '</p>';
+      if (p.t === 'warn') return '<p class="warn"><b>Careful:</b> ' + esc(p.x) + '</p>';
+      return '<p class="note">' + fill(p.x) + '</p>';
     }).join('');
+  }
+  function renderAnswer() {
+    var el = $('obj-answer'), o = null;
+    for (var i = 0; i < S.objections.length; i++) if (S.objections[i].n === state.openObj) o = S.objections[i];
+    if (!o) { el.hidden = true; el.innerHTML = ''; return; }
+    var hasAsk = o.thenParts.some(function (p) { return p.t === 'say'; });
+    el.hidden = false;
+    el.innerHTML = '<div class="ans-top"><span class="ans-they">They said: ' + esc(o.they) + '</span>' +
+      '<button type="button" class="ans-x" data-a="obj-close">Clear</button></div>' +
+      label('Say') + partsHtml(o.sayParts) +
+      (o.thenParts.length ? label(hasAsk ? 'Then ask' : 'Then') + partsHtml(o.thenParts) : '') +
+      (o.behind ? '<p class="mean"><b>Behind it:</b> ' + esc(o.behind) + '</p>' : '');
+    if (window.innerWidth < 1000 && el.scrollIntoView) el.scrollIntoView({ block: 'nearest' });
+  }
+  function renderObjections() {
+    var keyOf = {};
+    S.objections.slice().sort(byRank).forEach(function (o, i) { if (i < 9) keyOf[o.n] = i + 1; });
+    var list = S.objections.filter(matches), h = '';
+    S.groups.forEach(function (g) {
+      var items = list.filter(function (o) { return o.group === g; }).sort(byRank);
+      if (!items.length) return;
+      h += '<div class="grp"><h3>' + esc(g) + '</h3><div class="oc-row">' + items.map(function (o) {
+        return '<button type="button" class="oc" data-a="obj" data-n="' + o.n + '" aria-pressed="' + (state.openObj === o.n) + '">' +
+          (keyOf[o.n] ? '<span class="k">' + keyOf[o.n] + '</span>' : '') + esc(o.short) + '</button>';
+      }).join('') + '</div></div>';
+    });
+    $('obj-list').innerHTML = h || '<p class="none">Nothing matches. Try one word.</p>';
+    renderAnswer();
   }
 
   /* ---------- other moments ---------- */
@@ -130,6 +157,7 @@
     else if (a === 'prev') { if (state.step > 0) { state.step--; renderSteps(); renderSay(); } }
     else if (a === 'persona') { state.persona = b.getAttribute('data-k'); renderPersonas(); renderSay(); }
     else if (a === 'obj') { var n = +b.getAttribute('data-n'); state.openObj = state.openObj === n ? null : n; renderObjections(); }
+    else if (a === 'obj-close') { state.openObj = null; renderObjections(); }
     else if (a === 'moment') { var k = b.getAttribute('data-k'); state.moment = state.moment === k ? null : k; renderMoments(); }
   });
 
@@ -143,8 +171,22 @@
   $('f-q').addEventListener('input', function (e) { state.q = e.target.value; state.openObj = null; renderObjections(); });
 
   document.addEventListener('keydown', function (e) {
-    var t = e.target && e.target.tagName;
-    if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
+    var t = e.target && e.target.tagName, typing = t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT';
+    if (e.key === 'Escape') { state.openObj = null; state.q = ''; $('f-q').value = ''; $('f-q').blur(); renderObjections(); return; }
+    if (typing) {
+      if (e.target.id === 'f-q' && e.key === 'Enter') {
+        var v = S.objections.filter(matches).sort(byRank);
+        if (v.length) { state.openObj = v[0].n; renderObjections(); }
+      }
+      return;
+    }
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === '/') { e.preventDefault(); $('f-q').focus(); return; }
+    if (/^[1-9]$/.test(e.key)) {
+      var o = S.objections.slice().sort(byRank)[+e.key - 1];
+      if (o) { state.openObj = o.n; renderObjections(); }
+      return;
+    }
     if (e.key === 'ArrowRight' && state.step < STEPS.length - 1) { state.step++; renderSteps(); renderSay(); }
     if (e.key === 'ArrowLeft' && state.step > 0) { state.step--; renderSteps(); renderSay(); }
   });

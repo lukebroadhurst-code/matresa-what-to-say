@@ -57,12 +57,14 @@
   </section>
 
   <!-- 3. If they say -->
-  <section class="card" aria-labelledby="obj-h">
+  <section class="card obj-card" id="objections" aria-labelledby="obj-h">
     <div class="obj-head">
       <h2 id="obj-h">If they say&hellip;</h2>
-      <input id="f-q" class="search" type="search" placeholder="Search, for example budget, EAP, price" aria-label="Search what they say">
+      <input id="f-q" class="search" type="search" placeholder="Search, or press 1 to 9" aria-label="Search what they say">
     </div>
-    <div id="obj-list" class="obj-list"></div>
+    <div id="obj-answer" class="obj-answer" aria-live="polite" hidden></div>
+    <div id="obj-list"></div>
+    <p class="keyhint">Tap what they said. Keys: 1 to 9 for the most common, / to search, Esc to clear.</p>
   </section>
 
   <!-- 4. Other moments -->
@@ -73,6 +75,8 @@
   </section>
 
 </main>
+
+<a class="jump" href="#objections">They said something &darr;</a>
 
 <footer class="foot">
   <p><strong>Not sure? Say:</strong> <span id="escape"></span></p>
